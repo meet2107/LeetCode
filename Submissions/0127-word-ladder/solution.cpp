@@ -1,46 +1,35 @@
 class Solution {
 public:
-    int ladderLength(string bw, string ew, vector<string>& wl) {
-        wl.insert(wl.begin(), bw);
-        int n = wl.size();
-        int ewIndex = -1;
+    int ladderLength(string begin, string end, vector<string>& word) {
+        queue<pair<string,int>> q;
+        q.push({begin,1});
 
-        vector<vector<int>> graph(n);
+        unordered_set<string> s(word.begin(),word.end());
+        s.erase(begin);
 
-        for (int i = 0; i < n; i++) {
-            if (wl[i] == ew)
-                ewIndex = i;
-            for (int j = i + 1; j < n; j++) {
-                int matched = 0;
-                for (int k = 0; k < bw.size(); k++) {
-                    if (wl[i][k] == wl[j][k])
-                        matched++;
-                }
-                if (matched == bw.size() - 1) {
-                    graph[i].push_back(j);
-                    graph[j].push_back(i);
-                }
-            }
-        }
-
-        if (ewIndex == -1)
-            return 0;
-        vector<int> distance(n, INT_MAX);
-        distance[0] = 0;
-        queue<int> q;
-        q.push(0);
-
-        while (!q.empty()) {
-            int node = q.front();
+        while(!q.empty()){
+            string w = q.front().first;
+            int steps = q.front().second;
             q.pop();
-            for (int neighbor : graph[node]) {
-                if (distance[node] + 1 < distance[neighbor]) {
-                    distance[neighbor] = distance[node] + 1;
-                    q.push(neighbor);
+
+            if(w == end){
+                return steps;
+            }
+
+            for(int i=0;i<w.size();i++){
+                char original = w[i];
+                for(char ch='a';ch<='z';ch++){
+                    w[i] = ch;
+                    if(s.find(w) != s.end()){
+                        s.erase(w);
+                        q.push({w,steps+1});
+                    }
                 }
+                // backtrack
+                w[i] = original;
             }
         }
 
-        return distance[ewIndex] == INT_MAX ? 0 : distance[ewIndex] + 1;
+        return 0;
     }
 };
